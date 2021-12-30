@@ -53,6 +53,7 @@ const HomeScreen = () => {
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [countriesPerPage] = useState(7);
+  const [filteredData, setFilteredData] = useState([]);
 
   // side effects
   useEffect(() => {
@@ -62,6 +63,7 @@ const HomeScreen = () => {
         "https://restcountries.com/v2/all?fields=name,region,area"
       );
       setCountries(res.data);
+      setFilteredData(res.data);
       setLoading(false);
     };
     fetchCountries();
@@ -70,13 +72,23 @@ const HomeScreen = () => {
   // get countries
   const indexOfLastCountry = currentPage * countriesPerPage;
   const indexOfFirstCountry = indexOfLastCountry - countriesPerPage;
-  const currentCountries = countries.slice(
+  const currentCountries = filteredData.slice(
     indexOfFirstCountry,
     indexOfLastCountry
   );
 
   // custom functions
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  const ascendingHandler = () => {
+    setFilteredData(countries.sort((a, b) => (a.area > b.area ? 1 : -1)));
+    console.log(filteredData);
+  };
+
+  const descendingHandler = () => {
+    setFilteredData(countries.sort((a, b) => (a.area > b.area ? -1 : 1)));
+    console.log(filteredData);
+  };
 
   return (
     <StyledHomeScreen>
@@ -90,11 +102,8 @@ const HomeScreen = () => {
         </div>
         <div className="buttons">
           <div className="ascending_descending">
-            <Button text="Ascending" action={() => console.log("ascending")} />
-            <Button
-              text="Descending"
-              action={() => console.log("descending")}
-            />
+            <Button text="Ascending" action={() => ascendingHandler()} />
+            <Button text="Descending" action={() => descendingHandler()} />
           </div>
           <div className="oceania">
             <Button text="Oceania" action={() => console.log("oceania")} />
@@ -102,10 +111,10 @@ const HomeScreen = () => {
         </div>
       </div>
       <section>
-        <Countries countries={currentCountries} loading={loading} />
+        <Countries countries={filteredData} loading={loading} />
         <Pagination
           countriesPerPage={countriesPerPage}
-          totalCountries={countries.length}
+          totalCountries={filteredData.length}
           paginate={paginate}
         />
       </section>
